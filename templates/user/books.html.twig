@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ user.username }}'s Books{% endblock title %}
+
+{% block body %}
+    <h1>{{ user.username }}'s Books</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Description</th>
+                <th>Year</th>
+                <th>Isbn</th>
+                <th>Photo</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if books %}
+        {% for book in books %}
+            <tr>
+                <td>{{ book.id }}</td>
+                <td><a href="{{ path('app_book_show', {'id': book.id}) }}">{{ book.title }}</a></td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.description }}</td>
+                <td>{{ book.year }}</td>
+                <td>{{ book.isbn }}</td>
+                <td>
+                    {% if book.photo %}
+                        <img src="{{ asset('uploads/' ~ book.photo) }}" alt="{{ book.title }}">
+                    {% else %}
+                        <p>No cover image available.</p>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('app_book_show', {'id': book.id}) }}">show</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_book_index') }}">Home Page</a>
+    <a href="{{ path('app_book_new') }}">Create new</a>
+{% endblock %}

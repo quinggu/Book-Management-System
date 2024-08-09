@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Book index{% endblock title %}
+
+{% block body %}
+    <h1>Book index</h1>
+
+    {{ form_start(form) }}
+    {{ form_widget(form.query) }}
+    <button type="submit">Search</button>
+    <a href="{{ path('app_book_index') }}">back to list</a>
+    {{ form_end(form) }}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Description</th>
+                <th>Year</th>
+                <th>Isbn</th>
+                <th>Photo</th>
+                <th>Added By</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if books %}
+        {% for book in books %}
+            <tr>
+                <td>{{ book.id }}</td>
+                <td><a href="{{ path('app_book_show', {'id': book.id}) }}">{{ book.title }}</a></td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.description }}</td>
+                <td>{{ book.year }}</td>
+                <td>{{ book.isbn }}</td>
+                <td>
+                    {% if book.photo %}
+                        <img src="{{ asset('uploads/' ~ book.photo) }}" alt="{{ book.title }}">
+                    {% else %}
+                        <p>No cover image available.</p>
+                    {% endif %}
+                </td>
+                <td><a href="{{ path('user_books', {'id': book.user.id}) }}">Added by: {{ book.user.username }}</a></td>
+                <td>
+                    <a href="{{ path('app_book_show', {'id': book.id}) }}">show</a>
+                    <a href="{{ path('app_book_edit', {'id': book.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_book_new') }}">Create new</a>
+{% endblock %}
