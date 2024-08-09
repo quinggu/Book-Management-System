@@ -8,6 +8,9 @@ docker-compose exec app php bin/console doctrine:migrations:migrate
 
 docker-compose exec app php bin/console doctrine:fixtures:load
 
+upewnić się, że mamy public/uploads
+
+
 dane logowania: admin@example.com // password123
 
 rejestracja:
