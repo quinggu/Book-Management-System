@@ -11,40 +11,57 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    private const BATCH_SIZE = 1000; // Number of records to process in each batch
+
     public function __construct(private UserPasswordHasherInterface $passwordHasher)
     {
     }
 
     public function load(ObjectManager $manager): void
     {
-        $user = new User();
-        $user->setEmail('admin@example.com');
-        $user->setRoles(['ROLE_ADMIN']);
-
-        // Hashowanie hasła
-        $hashedPassword = $this->passwordHasher->hashPassword(
-            $user,
-            'password123'
-        );
-        $user->setPassword($hashedPassword);
-
-        $manager->persist($user);
-        $manager->flush();
+        $user = $manager->getRepository(User::class)->findOneBy(['email' => 'user@example.com']);
+        if (!$user) {
+            $user = new User();
+            $user->setEmail('admin@example.com');
+            $user->setRoles(['ROLE_ADMIN']);
+            $user->setPassword($this->passwordHasher->hashPassword($user, 'password123'));
+            $manager->persist($user);
+            $manager->flush();
+        }
 
         $faker = Factory::create();
-//        for ($i = 0; $i < 1000000; $i++) {
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 1000000; $i++) {
             $book = new Book();
-            $book->setTitle($faker->sentence);
-            $book->setAuthor($faker->name);
-            $book->setDescription($faker->text);
-            $book->setYear($faker->year);
-            $book->setIsbn($faker->isbn13);
-            $book->setPhoto($faker->imageUrl);
-            $book->setUser($user);
+            $book
+                ->setTitle($faker->sentence)
+                ->setAuthor($faker->name)
+                ->setDescription($faker->text)
+                ->setYear($faker->year)
+                ->setIsbn($faker->isbn13)
+                ->setUser($user);
+
+            $imageFiles = [
+                'public/uploads/image1.jpg',
+                'public/uploads/image2.jpg',
+                'public/uploads/image3.jpg',
+                'public/uploads/image4.jpg',
+                'public/uploads/image5.jpg',
+            ];
+
+            $book->setPhoto(basename($imageFiles[array_rand($imageFiles)]));
 
             $manager->persist($book);
+
+            if (($i % self::BATCH_SIZE) === 0) {
+                $manager->flush();
+                // Detach each book entity to free up memory
+                foreach ($manager->getUnitOfWork()->getScheduledEntityInsertions() as $entity) {
+                    $manager->detach($entity);
+                }
+            }
         }
+
         $manager->flush();
+        $manager->clear();
     }
 }
