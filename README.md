@@ -3,7 +3,7 @@
 docker-compose build
 docker-compose up -d
 
-docker-compose exec app php bin/console doctrine:migrations:diff
+docker-compose exec app php bin/console doctrine:migrations:status
 docker-compose exec app php bin/console doctrine:migrations:migrate
 
 docker-compose exec app php bin/console doctrine:fixtures:load
